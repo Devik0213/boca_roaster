@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFF">
+
+        <TextView
+            android:id="@+id/save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:text="저장"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.anychart.AnyChartView
+            android:id="@+id/chart"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            app:layout_constraintTop_toBottomOf="@id/timer" />
+
+
+        <TextView
+            android:id="@+id/info_top"
+            style="@style/BaseText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="로스팅 정보"
+            app:layout_constraintTop_toBottomOf="@id/timer" />
+
+        <TextView
+            android:id="@+id/date"
+            style="@style/BaseText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/current_temperature"
+            app:layout_constraintTop_toBottomOf="@id/info_top" />
+
+        <TextView
+            android:id="@+id/current_temperature"
+            style="@style/BaseText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="현재 기온"
+            app:layout_constraintLeft_toRightOf="@id/date"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/info_top" />
+
+        <TextView
+            android:id="@+id/timer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#030303"
+            android:gravity="center"
+            android:text="00:00"
+            android:textColor="#FFFF00"
+            android:textSize="20dp"
+            app:layout_constraintTop_toBottomOf="@id/save" />
+
+
+        <TextView
+            android:id="@+id/level_label"
+            style="@style/BaseText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="화력레벨"
+            app:layout_constraintBottom_toTopOf="@id/temperature_level" />
+
+        <com.shawnlin.numberpicker.NumberPicker
+            android:id="@+id/temperature_level"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="#666"
+            app:layout_constraintBottom_toTopOf="@id/level_label"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:np_dividerColor="#F00"
+            app:np_fadingEdgeEnabled="true"
+            app:np_fadingEdgeStrength="4"
+            app:np_max="12"
+            app:np_min="0"
+            app:np_orientation="horizontal"
+            app:np_textColor="#FFF"
+            app:np_value="6"
+            app:np_wheelItemCount="5" />
+
+        <TextView
+            android:id="@+id/temperature_label"
+            style="@style/BaseText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="온도"
+            app:layout_constraintBottom_toTopOf="@id/temperature_degree"
+            app:layout_constraintTop_toBottomOf="@id/temperature_level" />
+
+        <com.shawnlin.numberpicker.NumberPicker
+            android:id="@+id/temperature_degree"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="#666"
+            app:layout_constraintBottom_toTopOf="@id/write"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:np_dividerColor="#F00"
+            app:np_max="250"
+            app:np_min="0"
+            app:np_order="ascending"
+            app:np_orientation="horizontal"
+            app:np_textColor="#FFF"
+            app:np_value="100"
+            app:np_wheelItemCount="8" />
+
+        <TextView
+            android:id="@+id/write"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="현재시각 기록"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
