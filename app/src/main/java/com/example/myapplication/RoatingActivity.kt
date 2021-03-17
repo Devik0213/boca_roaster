@@ -9,7 +9,9 @@ import com.anychart.enums.Orientation
 import com.anychart.enums.ScaleTypes
 import com.anychart.enums.TextParsingMode
 import com.example.myapplication.databinding.ActivityRoatingBinding
+import com.example.myapplication.model.Event
 import com.example.myapplication.model.LevelItem
+import com.example.myapplication.model.RPoint
 import com.example.myapplication.model.TemperatureItem
 import kotlin.math.max
 
@@ -29,12 +31,17 @@ class RoatingActivity : AppCompatActivity() {
         setContentView(binding.root)
 
 
+        val pointList = arrayListOf<RPoint>()
         val levelList = arrayListOf<LevelItem>()
         val temperList = arrayListOf<TemperatureItem>()
+
         for (i in 0..15) {
             val currentTime = i * 1L//System.currentTimeMillis() / 1000L + i*1000
-            temperList.add(TemperatureItem(currentTime, i * 10))
-            levelList.add(LevelItem(currentTime, (15 - i).toFloat()))
+            val li = LevelItem(currentTime, (15 - i).toFloat())
+            val ti = TemperatureItem(currentTime, i * 10)
+            pointList.add(RPoint(li, ti, Event.values()[i % 5]))
+            temperList.add(ti)
+            levelList.add(li)
         }
 
 
