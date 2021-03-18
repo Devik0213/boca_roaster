@@ -5,34 +5,37 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.PointItemBinding
-import com.example.myapplication.model.RPoint
+import com.example.myapplication.model.Point
 
 class ListAdapter(context: Context) : RecyclerView.Adapter<ListAdapter.VH>() {
     private val inflater: LayoutInflater = LayoutInflater.from(context)
-    val list = arrayListOf<RPoint>()
+    val list = arrayListOf<Point>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val binding = PointItemBinding.inflate(inflater)
+        val binding = PointItemBinding.inflate(inflater, parent, false)
         return VH(binding)
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val point = list[position]
         holder.binding.point = point
+        holder.binding.root.isActivated = point.index != -1
+
     }
 
     override fun getItemCount(): Int {
         return list.size
     }
 
-    fun add(rPoint: RPoint) {
-        list.add(rPoint)
+    fun add(point: Point) {
+        list.add(0, point)
         notifyDataSetChanged()
     }
 
-    fun clear(){
+    fun clear() {
         list.clear()
         notifyDataSetChanged()
     }
+
     class VH(val binding: PointItemBinding) : RecyclerView.ViewHolder(binding.root)
 }
