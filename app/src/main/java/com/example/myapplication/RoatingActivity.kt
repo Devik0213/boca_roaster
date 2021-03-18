@@ -3,49 +3,98 @@ package com.example.myapplication
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.anychart.AnyChart
-import com.anychart.core.axes.Linear
-import com.anychart.data.Set
 import com.anychart.enums.Orientation
-import com.anychart.enums.ScaleTypes
-import com.anychart.enums.TextParsingMode
 import com.example.myapplication.databinding.ActivityRoatingBinding
 import com.example.myapplication.model.Event
 import com.example.myapplication.model.LevelItem
 import com.example.myapplication.model.RPoint
 import com.example.myapplication.model.TemperatureItem
-import kotlin.math.max
+import java.text.DecimalFormat
+import java.util.Timer
+import kotlin.concurrent.timer
 
 class RoatingActivity : AppCompatActivity() {
 
     companion object {
         const val INDEX_TEMP = 0
         const val INDEX_LEVEL = 1
+        const val MILLISECOND = 1000L
     }
 
+    private lateinit var decimalFormat: DecimalFormat
+    private lateinit var adapter: ListAdapter
+    private lateinit var timeJob: Timer
+    private lateinit var timer: Timer
     private lateinit var binding: ActivityRoatingBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        decimalFormat = DecimalFormat("00")
         binding = ActivityRoatingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.timer.setOnClickListener {
+            if (it.isActivated) {
+                it.isActivated = false
+                stopTimer()
+            } else {
+                it.isActivated = true
+                startTimer()
+            }
+        }
+        adapter = ListAdapter(this)
+        binding.recyclerView.adapter = adapter
 
-        val pointList = arrayListOf<RPoint>()
-        val levelList = arrayListOf<LevelItem>()
-        val temperList = arrayListOf<TemperatureItem>()
-
-        for (i in 0..15) {
-            val currentTime = i * 1L//System.currentTimeMillis() / 1000L + i*1000
-            val li = LevelItem(currentTime, (15 - i).toFloat())
-            val ti = TemperatureItem(currentTime, i * 10)
-            pointList.add(RPoint(li, ti, Event.values()[i % 5]))
-            temperList.add(ti)
-            levelList.add(li)
+        binding.write.setOnClickListener {
+            writePoint()
         }
 
+    }
+
+    private fun writePoint() {
+        if (binding.write.isActivated.not()) {
+            return
+        }
+        val level = binding.temperatureLevel.value
+        val degree = binding.temperatureDegree.value
+        val time = binding.timer.text.toString()
+        val li = LevelItem(time, level)
+        val ti = TemperatureItem(time, degree)
+        adapter.add(RPoint(li, ti, Event.NONE))
+        renderChart(li, ti)
+    }
+
+    private fun startTimer() {
+        var startTime = 0L
+        binding.write.isActivated = true
+        timeJob = timer("timer", false, 0, MILLISECOND) {
+            if (startTime == 0L) {
+                startTime = scheduledExecutionTime()
+            }
+            val time = (scheduledExecutionTime() - startTime) / MILLISECOND
+            binding.timer.text =
+                "${decimalFormat.format(time / 60)}:${decimalFormat.format(time % 60)}"
+        }
+    }
+
+    private fun stopTimer() {
+        adapter.clear()
+        binding.write.isActivated = false
+        timeJob.cancel()
+        levelList.clear()
+        temperList.clear()
+    }
+
+    val levelList = arrayListOf<LevelItem>()
+    val temperList = arrayListOf<TemperatureItem>()
+    fun renderChart(level: LevelItem, degree: TemperatureItem) {
+
+        levelList.add(level)
+        temperList.add(degree)
 
         val chart = AnyChart.line()
+        //TODO char manipulate : https://docs.anychart.com/Working_with_Data/Data_Sets
         chart.apply {
             title("시간별 온도 추이")
 
@@ -78,8 +127,8 @@ class RoatingActivity : AppCompatActivity() {
                 yScale(extraScale)
             }
         }
-        binding.chart.setChart(chart)
-
-        // https://github.com/milosmns/actual-number-picker 구현
+        binding.chart.post {
+            binding.chart.setChart(chart)
+        }
     }
 }

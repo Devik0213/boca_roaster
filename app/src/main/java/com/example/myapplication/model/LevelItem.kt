@@ -4,7 +4,7 @@ import com.anychart.chart.common.dataentry.ValueDataEntry
 
 
 data class LevelItem(
-    val time: Long,
-    val value: Float
+    val time: String,
+    val value: Int
 ) : ValueDataEntry(time, value)
 

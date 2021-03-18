@@ -8,7 +8,6 @@
             name="point"
             type="com.example.myapplication.model.RPoint" />
 
-        <import type="String"
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

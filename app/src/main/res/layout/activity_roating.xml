@@ -64,8 +64,8 @@
             android:layout_height="wrap_content"
             android:background="#030303"
             android:gravity="center"
-            android:text="00:00"
             android:padding="10dp"
+            android:text="00:00"
             android:textColor="#FFFF00"
             android:textSize="20dp"
             app:layout_constraintBottom_toTopOf="@id/level_label"
@@ -110,7 +110,8 @@
             android:id="@+id/temperature_label"
             style="@style/BaseText"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="30dp"
+            android:padding="10dp"
             android:text="온도"
             app:layout_constraintBottom_toTopOf="@id/temperature_degree"
             app:layout_constraintTop_toBottomOf="@id/temperature_level" />
@@ -136,9 +137,11 @@
             android:id="@+id/write"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/selector_write"
             android:gravity="center"
-            android:padding="10dp"
+            android:padding="15dp"
             android:text="현재시각 기록"
+            android:textColor="#FFF"
             app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
