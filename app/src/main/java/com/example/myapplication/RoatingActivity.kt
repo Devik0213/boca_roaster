@@ -184,46 +184,68 @@ class RoatingActivity : AppCompatActivity() {
     }
 
     fun renderChart(pendingPoint: Point) {
-        val temperatureList = adapter.list.filter { it.index != -1 }
-            .mapIndexed { index, point -> Entry(index.toFloat(), point.temperature.toFloat()) }.reversed()
-        val levelList = adapter.list.filter { it.index != -1 }
-            .mapIndexed { index, point -> BarEntry(index.toFloat(), point.level.toFloat()) }.reversed()
         binding.chart.apply {
+            if (data.dataSetCount == 0) {
+                val temperatureList = adapter.list.filter { it.index != -1 }
+                    .mapIndexed { index, point ->
+                        Entry(
+                            index.toFloat(),
+                            point.temperature.toFloat()
+                        )
+                    }
+                val levelList = adapter.list.filter { it.index != -1 }
+                    .mapIndexed { index, point -> BarEntry(index.toFloat(), point.level.toFloat()) }
+                val temperatureSet = LineDataSet(temperatureList, "temperatures").also { set ->
+                    set.setColor(Color.rgb(240, 238, 70))
+                    set.setLineWidth(2.5f)
+                    set.setCircleColor(Color.rgb(240, 238, 70))
+                    set.setCircleRadius(5f)
+                    set.setFillColor(Color.rgb(240, 238, 70))
+                    set.setMode(LineDataSet.Mode.CUBIC_BEZIER)
+                    set.setDrawValues(true)
+                    set.setValueTextSize(10f)
+                    set.setValueTextColor(Color.rgb(240, 238, 70))
+                    set.setAxisDependency(AxisDependency.LEFT)
+                }
 
+                val levelSet = BarDataSet(levelList, "levels").also { set ->
+                    set.setColor(Color.rgb(60, 220, 78))
+                    set.setValueTextColor(Color.rgb(60, 220, 78))
+                    set.setValueTextSize(10f)
+                    set.axisDependency = AxisDependency.RIGHT
+                }
 
-//            var temperatureSet = data.getDataSetByIndex(INDEX_TEMP)
-//            var levelSet = data.getDataSetByIndex(INDEX_LEVEL)
+                data.setData(LineData().apply {
+                    addDataSet(temperatureSet)
+                })
+                data.setData(BarData().apply {
+                    barWidth = .3f
+                    addDataSet(levelSet)
+                })
+                xAxis.axisMaximum = data.xMax + 0.25f
 
-            val temperatureSet = LineDataSet(temperatureList, "temperatures").also { set ->
-                set.setColor(Color.rgb(240, 238, 70))
-                set.setLineWidth(2.5f)
-                set.setCircleColor(Color.rgb(240, 238, 70))
-                set.setCircleRadius(5f)
-                set.setFillColor(Color.rgb(240, 238, 70))
-                set.setMode(LineDataSet.Mode.CUBIC_BEZIER)
-                set.setDrawValues(true)
-                set.setValueTextSize(10f)
-                set.setValueTextColor(Color.rgb(240, 238, 70))
-                set.setAxisDependency(AxisDependency.LEFT)
+                data = data
+            } else {
+                data.getDataByIndex(INDEX_TEMP).apply {
+                    addEntry(
+                        Entry(
+                            pendingPoint.index.toFloat(),
+                            pendingPoint.temperature.toFloat()
+                        ), entryCount - 1
+                    )
+                    notifyDataChanged()
+                    notifyDataSetChanged()
+                }
+                data.getDataByIndex(INDEX_LEVEL).apply {
+                    addEntry(
+                        Entry(
+                            pendingPoint.index.toFloat(),
+                            pendingPoint.level.toFloat()
+                        ), entryCount - 1
+                    )
+                    notifyDataChanged()
+                }
             }
-
-            val levelSet = BarDataSet(levelList, "levels").also { set ->
-                set.setColor(Color.rgb(60, 220, 78))
-                set.setValueTextColor(Color.rgb(60, 220, 78))
-                set.setValueTextSize(10f)
-                set.axisDependency = AxisDependency.RIGHT
-            }
-
-            data.setData(LineData().apply {
-                addDataSet(temperatureSet)
-            })
-            data.setData(BarData().apply {
-                barWidth = 1f
-                addDataSet(levelSet)
-            })
-            xAxis.axisMaximum = data.xMax + 0.25f
-
-            data = data
             data.notifyDataChanged()
             notifyDataSetChanged()
             invalidate()
