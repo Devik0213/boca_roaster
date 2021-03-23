@@ -3,17 +3,30 @@ package com.example.myapplication
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.ActivityRoatingBinding
+import com.example.myapplication.helper.ToastHelper
 import com.example.myapplication.model.Event
 import com.example.myapplication.model.Point
+import com.example.myapplication.room.DB
+import com.example.myapplication.room.RoastInfo
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis.AxisDependency
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.google.gson.Gson
+import com.google.gson.JsonObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import java.text.DecimalFormat
+import java.text.SimpleDateFormat
 import java.util.Timer
 import kotlin.concurrent.timer
 
@@ -23,12 +36,14 @@ class RoastingActivity : AppCompatActivity() {
         const val INDEX_TEMP = 0
         const val INDEX_LEVEL = 1
         const val MILLISECOND = 1000L
-        const val TERM = 3
+        const val TERM = 1
     }
 
+    private lateinit var dateFormat: SimpleDateFormat
+    private lateinit var infoAdapter: InfoListAdapter
     private lateinit var timeJob: Timer
     private var progressTime: Long = 0L
-    private var startTime: Long = 0L
+    private var startTimeId: Long = 0L
     private var pendingPoint: Point? = null
 
     private lateinit var decimalFormat: DecimalFormat
@@ -39,12 +54,37 @@ class RoastingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         decimalFormat = DecimalFormat("00")
+        dateFormat = SimpleDateFormat("yyyy/MM/dd-HH:mm")
 
         binding = ActivityRoatingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        initInfo(binding.infoList)
         intChart(binding.chart)
         initClicks()
+
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO){
+                val ss = Gson().fromJson(
+                    DB.instance.roastInfoDao().getRecent()[0].jsonString,
+                    List::class.java
+                )
+                ToastHelper.showSingleToast(this@RoastingActivity, "", Toast.LENGTH_SHORT)
+            }
+        }
+        binding.save.setOnClickListener {
+            lifecycleScope.launch {
+                val beanName = infoAdapter.list[2].value
+                val weight = infoAdapter.list[1].value
+                val roastWeight = infoAdapter.list[3].value
+                val history = Gson().toJson(adapter.list.toString())
+
+                val record = RoastInfo(startTimeId, beanName, weight, roastWeight, history)
+                withContext(Dispatchers.IO) {
+                    DB.instance.roastInfoDao().insert(record)
+                }
+            }
+        }
 
         binding.temperatureDegree.setOnValueChanged { picker, oldVal, newVal ->
             Log.d("onChanged", "temper : $newVal")
@@ -57,6 +97,20 @@ class RoastingActivity : AppCompatActivity() {
         adapter = ListAdapter(this)
         binding.recyclerView.adapter = adapter
 
+    }
+
+    private fun saveData() {
+
+    }
+
+    private fun initInfo(infoList: RecyclerView) {
+        infoAdapter = InfoListAdapter(this, dateFormat)
+        infoList.adapter = infoAdapter
+        updateInfo(0, dateFormat.format(System.currentTimeMillis()))
+    }
+
+    private fun updateInfo(index: Int, value: String) {
+        infoAdapter.list[index].value = value
     }
 
     private fun initClicks() {
@@ -136,20 +190,20 @@ class RoastingActivity : AppCompatActivity() {
                 0,
                 temper ?: binding.temperatureLevel.value,
                 level ?: binding.temperatureDegree.value,
-                startTime,
+                startTimeId,
                 0,
                 Event.INPUT
             )
         }
         level?.let {
             pendingPoint =
-                pendingPoint?.copy(level = it, time = startTime, processTime = progressTime)
+                pendingPoint?.copy(level = it, time = startTimeId, processTime = progressTime)
         }
         temper?.let {
-            pendingPoint = pendingPoint?.copy(temperature = it, time = startTime)
+            pendingPoint = pendingPoint?.copy(temperature = it, time = startTimeId)
         }
         event?.let {
-            pendingPoint = pendingPoint?.copy(event = it, time = startTime)
+            pendingPoint = pendingPoint?.copy(event = it, time = startTimeId)
         }
         pendingPoint?.let {
             addList(it)
@@ -170,20 +224,20 @@ class RoastingActivity : AppCompatActivity() {
             addList(recordPoint)
             renderChart(recordPoint)
             index++
-            if (index == 20) {
+            if (index == 5) {
                 stopTimer()
             }
         }
     }
 
     private fun startTimer() {
-        startTime = 0L
+        startTimeId = 0L
         binding.control.isActivated = true
         timeJob = timer("timer", false, 0, MILLISECOND) {
-            if (startTime == 0L) {
-                startTime = scheduledExecutionTime()
+            if (startTimeId == 0L) {
+                startTimeId = scheduledExecutionTime()
             }
-            progressTime = (scheduledExecutionTime() - startTime) / MILLISECOND
+            progressTime = (scheduledExecutionTime() - startTimeId) / MILLISECOND
             if (progressTime < 1L) {
                 runOnUiThread {
                     pendingPoint(null, null, event = Event.INPUT)
@@ -200,12 +254,12 @@ class RoastingActivity : AppCompatActivity() {
     }
 
     private fun stopTimer() {
-        adapter.clear()
         binding.control.isActivated = false
+        binding.control.isEnabled = false
         timeJob.cancel()
     }
 
-    fun renderChart(pendingPoint: Point) {
+    private fun renderChart(pendingPoint: Point) {
         binding.chart.apply {
             if (data.dataSetCount == 0) {
                 val temperatureList = adapter.list.filter { it.index != -1 }

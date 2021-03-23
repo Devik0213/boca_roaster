@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/toast_layout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_margin="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="237dp"
+        android:layout_height="78dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/bg_toast_viewer">
+
+
+        <TextView
+            android:id="@+id/toast_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="토스트"
+            android:textColor="@color/rst_grey7"
+            android:textSize="13dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="토스트" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</RelativeLayout>
