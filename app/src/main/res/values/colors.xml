@@ -8,7 +8,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="rst_green">#00DC64</color>
     <color name="rst_black">#000000</color>
     <color name="rst_grey1">#3C3C3C</color>
     <color name="rst_grey2">#8C8C8C</color>
@@ -19,8 +18,23 @@
     <color name="rst_grey7">#F8F8F8</color>
     <color name="rst_grey8">#242424</color>
     <color name="rst_grey9">#171717</color>
-    <color name="rst_white">#FFFFFF</color>
-    <color name="rst_red">#FF3333</color>
     <color name="rst_alert">#E24E2C</color>
     <color name="rst_blue">#3b6cef</color>
+
+    <color name="rst_white">#FFFFFF</color>
+    <color name="rst_red">#FF3030</color>
+
+    <color name="rst_yellow">#CADCAA</color>
+    <color name="rst_green">#D8DA50</color>
+    <color name="rst_brown">#AC8D56</color>
+
+    <color name="rst_light">#E1D5CA</color>
+    <color name="rst_light2">#F6D5CA</color>
+    <color name="rst_light4">#A8ABAC</color>
+
+    <color name="rst_dark4">#878987</color>
+    <color name="rst_dark3">#475967</color>
+    <color name="rst_dark2">#374957</color>
+    <color name="rst_dark">#273957</color>
+    <color name="silver">#A0A0A0</color>
 </resources>

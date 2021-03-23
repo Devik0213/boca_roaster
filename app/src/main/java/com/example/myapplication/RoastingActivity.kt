@@ -12,13 +12,12 @@ import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis.AxisDependency
 import com.github.mikephil.charting.data.*
-import com.github.mikephil.charting.formatter.IAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import java.text.DecimalFormat
 import java.util.Timer
 import kotlin.concurrent.timer
 
-class RoatingActivity : AppCompatActivity() {
+class RoastingActivity : AppCompatActivity() {
 
     companion object {
         const val INDEX_TEMP = 0
@@ -40,21 +39,15 @@ class RoatingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         decimalFormat = DecimalFormat("00")
+
         binding = ActivityRoatingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         intChart(binding.chart)
-        binding.control.setOnClickListener {
-            if (it.isActivated) {
-                it.isActivated = false
-                stopTimer()
-            } else {
-                it.isActivated = true
-                startTimer()
-            }
-        }
+        initClicks()
+
         binding.temperatureDegree.setOnValueChanged { picker, oldVal, newVal ->
-            Log.d("onChanged", "temp : $newVal")
+            Log.d("onChanged", "temper : $newVal")
             pendingPoint(null, newVal, Event.NONE)
         }
         binding.temperatureLevel.setOnValueChanged { picker, oldVal, newVal ->
@@ -66,12 +59,40 @@ class RoatingActivity : AppCompatActivity() {
 
     }
 
+    private fun initClicks() {
+        with(binding) {
+            control.setOnClickListener {
+                if (it.isActivated) {
+                    it.isActivated = false
+                    stopTimer()
+                } else {
+                    it.isActivated = true
+                    startTimer()
+                }
+            }
+            levelPlus.setOnClickListener {
+                temperatureLevel.value--
+                pendingPoint(temperatureLevel.value, null, Event.NONE)
+            }
+            levelMinus.setOnClickListener {
+                temperatureLevel.value++
+                pendingPoint(temperatureLevel.value, null, Event.NONE)
+            }
+            temperaturePlus.setOnClickListener {
+                temperatureDegree.value += 10
+                pendingPoint(null, temperatureDegree.value, Event.NONE)
+
+            }
+            temperatureMinus.setOnClickListener {
+                temperatureDegree.value -= 10
+                pendingPoint(null, temperatureDegree.value, Event.NONE)
+            }
+        }
+    }
+
     private fun intChart(chart: CombinedChart) {
         chart.apply {
             setBackgroundColor(resources.getColor(R.color.rst_grey1))
-            setTouchEnabled(false)
-            setScaleEnabled(true)
-            setPinchZoom(false)
 
             val l = chart.legend
             l.isWordWrapEnabled = true
@@ -108,22 +129,23 @@ class RoatingActivity : AppCompatActivity() {
         }
     }
 
-    private fun pendingPoint(pendingLevel: Int?, newVal: Int?, event: Event?) {
+    private fun pendingPoint(level: Int?, temper: Int?, event: Event?) {
         if (pendingPoint == null) {
+            Log.d("init point", " $level, $temper, $event")
             pendingPoint = Point(
-                -1,
-                binding.temperatureLevel.value,
-                binding.temperatureDegree.value,
+                0,
+                temper ?: binding.temperatureLevel.value,
+                level ?: binding.temperatureDegree.value,
                 startTime,
                 0,
                 Event.INPUT
             )
         }
-        pendingLevel?.let {
+        level?.let {
             pendingPoint =
                 pendingPoint?.copy(level = it, time = startTime, processTime = progressTime)
         }
-        newVal?.let {
+        temper?.let {
             pendingPoint = pendingPoint?.copy(temperature = it, time = startTime)
         }
         event?.let {
@@ -194,17 +216,21 @@ class RoatingActivity : AppCompatActivity() {
                         )
                     }
                 val levelList = adapter.list.filter { it.index != -1 }
-                    .mapIndexed { index, point -> BarEntry(index.toFloat(), point.level.toFloat()) }
+                    .mapIndexed { index, point ->
+                        BarEntry(
+                            index.toFloat(),
+                            point.level.toFloat()
+                        )
+                    }
                 val temperatureSet = LineDataSet(temperatureList, "temperatures").also { set ->
-                    set.setColor(Color.rgb(240, 238, 70))
+                    set.setColor(Color.rgb(255, 0, 0))
                     set.setLineWidth(2.5f)
                     set.setCircleColor(Color.rgb(240, 238, 70))
-                    set.setCircleRadius(5f)
-                    set.setFillColor(Color.rgb(240, 238, 70))
-                    set.setMode(LineDataSet.Mode.CUBIC_BEZIER)
-                    set.setDrawValues(true)
+                    set.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+                    set.cubicIntensity = .5f
+                    set.valueTextSize = 15f
                     set.setValueTextSize(10f)
-                    set.setValueTextColor(Color.rgb(240, 238, 70))
+                    set.setValueTextColor(Color.rgb(255, 0, 0))
                     set.setAxisDependency(AxisDependency.LEFT)
                 }
 
@@ -229,26 +255,28 @@ class RoatingActivity : AppCompatActivity() {
                 data.getDataByIndex(INDEX_TEMP).apply {
                     addEntry(
                         Entry(
-                            pendingPoint.index.toFloat(),
+                            entryCount.toFloat(),
                             pendingPoint.temperature.toFloat()
-                        ), entryCount - 1
+                        ), 0
                     )
-                    notifyDataChanged()
                     notifyDataSetChanged()
                 }
                 data.getDataByIndex(INDEX_LEVEL).apply {
                     addEntry(
-                        Entry(
-                            pendingPoint.index.toFloat(),
+                        BarEntry(
+                            entryCount.toFloat(),
                             pendingPoint.level.toFloat()
-                        ), entryCount - 1
+                        ), 0
                     )
-                    notifyDataChanged()
+                    notifyDataSetChanged()
                 }
             }
+
             data.notifyDataChanged()
+            xAxis.axisMaximum = data.getDataByIndex(INDEX_LEVEL).entryCount.toFloat()
             notifyDataSetChanged()
             invalidate()
+            moveViewToX(data.entryCount.toFloat())
         }
     }
 }

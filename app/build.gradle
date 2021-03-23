@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.myapplication"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -56,7 +56,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.2.2'
     implementation 'androidx.navigation:navigation-ui-ktx:2.2.2'
-//    implementation 'com.github.AnyChart:AnyChart-Android:1.1.2'
+    implementation 'com.github.fornewid:neumorphism:0.3.0'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
     implementation 'com.shawnlin:number-picker:2.4.11'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2'

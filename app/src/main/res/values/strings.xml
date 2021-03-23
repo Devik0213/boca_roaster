@@ -7,7 +7,15 @@
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
-    <string name="title_activity_roating">RoatingActivity</string>
+    <string name="label_date">로스팅 날짜 : %s</string>
+    <string name="dateformat">yyyy/MM/dd HH:mm</string>
+    <string name="label_weather_temperature">로스팅 기온</string>
+    <string name="label_sensor_temperature">대기</string>
+    <string name="label_sensor_humidity">습도</string>
+    <string name="label_log">이벤트 로그</string>
+    <string name="label_green_bean_weight">생두량</string>
+    <string name="label_bean_weight">원두량</string>
+    <string name="label_roi">수율</string>
+    <string name="label_dtr">DTR</string>
+
 </resources>
