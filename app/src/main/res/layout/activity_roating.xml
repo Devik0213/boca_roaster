@@ -24,6 +24,35 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <include
+            android:id="@+id/date"
+            layout="@layout/roating_info"
+            app:layout_constraintBottom_toTopOf="@id/chart"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/bean_weight"
+            app:layout_constraintTop_toBottomOf="@id/save" />
+
+        <include
+            android:id="@+id/bean_name"
+            layout="@layout/roating_info"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/date" />
+
+        <include
+            android:id="@+id/bean_weight"
+            layout="@layout/roating_info"
+            app:layout_constraintLeft_toRightOf="@id/date"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/date" />
+
+        <include
+            android:id="@+id/roasted_weight"
+            layout="@layout/roating_info"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/save" />
+
+
         <TextView
             android:id="@+id/info_top"
             style="@style/BaseText"
@@ -74,35 +103,18 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/chart" />
 
-        <TextView
-            android:id="@+id/sensor_temp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/label_sensor_temperature"
-            app:layout_constraintLeft_toLeftOf="@id/date"
-            app:layout_constraintTop_toBottomOf="@id/date" />
 
-        <TextView
-            android:id="@+id/sensor_humidity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/label_sensor_temperature"
-            app:layout_constraintLeft_toLeftOf="@id/sensor_temp"
-            app:layout_constraintTop_toBottomOf="@id/sensor_temp" />
-
-        <soup.neumorphism.NeumorphButton
+        <Button
             android:id="@+id/control"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="20dp"
+            android:padding="10dp"
             android:text="START"
-            android:textColor="@color/rst_grey8"
+            android:textColor="@color/white"
             app:layout_constraintBottom_toTopOf="@id/level_label"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:neumorph_inset="3dp"
-            app:neumorph_lightSource="leftTop"
-            app:neumorph_shapeType="flat" />
+            app:layout_constraintRight_toRightOf="parent" />
 
         <TextView
             android:layout_width="wrap_content"
