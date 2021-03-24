@@ -30,7 +30,7 @@ class RoastingActivity : AppCompatActivity() {
         const val INDEX_TEMP = 0
         const val INDEX_LEVEL = 1
         const val MILLISECOND = 1000L
-        const val TERM = 1
+        const val WIRTE_TERM = 60
     }
 
     private lateinit var infoAdapter: InfoListAdapter
@@ -156,11 +156,6 @@ class RoastingActivity : AppCompatActivity() {
                 it.labelCount = 20
                 it.axisMinimum = 0f
                 it.granularity = 1f
-//                it.valueFormatter = object : ValueFormatter() {
-//                    override fun getFormattedValue(value: Float): String {
-//                        return super.getFormattedValue(value)
-//                    }
-//                }
             }
             axisLeft.let {
                 it.setDrawGridLines(false)
@@ -220,7 +215,7 @@ class RoastingActivity : AppCompatActivity() {
             addList(recordPoint)
             renderChart(recordPoint)
             index++
-            if (index == 5) {
+            if (index == 20) {
                 stopTimer()
             }
         }
@@ -241,7 +236,7 @@ class RoastingActivity : AppCompatActivity() {
                 }
             }
             binding.timer.text = Formatter.processTime(progressTime)
-            if (progressTime % TERM == 0L) {
+            if (progressTime % WIRTE_TERM == 0L) {
                 runOnUiThread {
                     writePoint()
                 }

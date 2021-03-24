@@ -15,6 +15,13 @@
         android:layout_height="match_parent"
         android:background="@color/rst_grey7">
 
+        <ImageView
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:src="@drawable/ic_close_gray"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/info_top"
             style="@style/BaseText"
@@ -25,6 +32,7 @@
 
         <TextView
             android:id="@+id/save"
+            style="@style/MaterialAlertDialog.MaterialComponents.Title.Text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dp"
@@ -55,16 +63,17 @@
             android:id="@+id/chart"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintDimensionRatio="h, 2:1"
+            app:layout_constraintDimensionRatio="h, 3:2"
             app:layout_constraintTop_toBottomOf="@id/info_list" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="200dp"
             android:layout_height="0dp"
+            android:alpha=".5"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="@id/chart"
-            app:layout_constraintDimensionRatio="w, 1.5:3"
+            app:layout_constraintDimensionRatio="w, 1:4"
             app:layout_constraintRight_toRightOf="@id/chart"
             tools:listitem="@layout/point_item" />
 
