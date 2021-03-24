@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import android.app.Application
 import android.content.Context
+import com.example.myapplication.helper.Formatter
 import com.example.myapplication.room.DB
 
 class RoastingApplication : Application() {

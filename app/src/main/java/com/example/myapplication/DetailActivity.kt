@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.ActivityRoastingBinding
 import com.example.myapplication.helper.Formatter
 import com.example.myapplication.model.Event
@@ -17,6 +16,7 @@ import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis.AxisDependency
 import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,7 +24,7 @@ import kotlinx.coroutines.withContext
 import java.util.Timer
 import kotlin.concurrent.timer
 
-class RoastingActivity : AppCompatActivity() {
+class DetailActivity : AppCompatActivity() {
 
     companion object {
         const val INDEX_TEMP = 0
@@ -48,24 +48,12 @@ class RoastingActivity : AppCompatActivity() {
         binding = ActivityRoastingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        initInfo(binding.infoList)
         intChart(binding.chart)
         initClicks()
 
         binding.save.setOnClickListener {
             saveData()
         }
-
-        binding.temperatureDegree.setOnValueChanged { picker, oldVal, newVal ->
-            Log.d("onChanged", "temper : $newVal")
-            pendingPoint(null, newVal, Event.NONE)
-        }
-        binding.temperatureLevel.setOnValueChanged { picker, oldVal, newVal ->
-            Log.d("onChanged", "level : $newVal")
-            pendingPoint(newVal, null, Event.NONE)
-        }
-        adapter = ListAdapter(this)
-        binding.recyclerView.adapter = adapter
 
     }
 
@@ -83,6 +71,7 @@ class RoastingActivity : AppCompatActivity() {
 
             val history = Gson().toJson(adapter.list)
             val list = Gson().fromJson(history, Array<Point>::class.java)
+            Log.d("aa", "list $list")
             val record = RoastInfo(
                 startTimeId,
                 progressTime,
@@ -99,44 +88,9 @@ class RoastingActivity : AppCompatActivity() {
         }
     }
 
-    private fun initInfo(infoList: RecyclerView) {
-        infoAdapter = InfoListAdapter(this)
-        infoList.adapter = infoAdapter
-        updateInfo(0, Formatter.shortDateFormat.format(System.currentTimeMillis()))
-    }
-
-    private fun updateInfo(index: Int, value: String) {
-        infoAdapter.list[index].value = value
-    }
-
     private fun initClicks() {
         with(binding) {
-            control.setOnClickListener {
-                if (it.isActivated) {
-                    it.isActivated = false
-                    stopTimer()
-                } else {
-                    it.isActivated = true
-                    startTimer()
-                }
-            }
-            levelPlus.setOnClickListener {
-                temperatureLevel.value--
-                pendingPoint(temperatureLevel.value, null, Event.NONE)
-            }
-            levelMinus.setOnClickListener {
-                temperatureLevel.value++
-                pendingPoint(temperatureLevel.value, null, Event.NONE)
-            }
-            temperaturePlus.setOnClickListener {
-                temperatureDegree.value += 10
-                pendingPoint(null, temperatureDegree.value, Event.NONE)
 
-            }
-            temperatureMinus.setOnClickListener {
-                temperatureDegree.value -= 10
-                pendingPoint(null, temperatureDegree.value, Event.NONE)
-            }
         }
     }
 
@@ -156,11 +110,11 @@ class RoastingActivity : AppCompatActivity() {
                 it.labelCount = 20
                 it.axisMinimum = 0f
                 it.granularity = 1f
-//                it.valueFormatter = object : ValueFormatter() {
-//                    override fun getFormattedValue(value: Float): String {
-//                        return super.getFormattedValue(value)
-//                    }
-//                }
+                it.valueFormatter = object : ValueFormatter() {
+                    override fun getFormattedValue(value: Float): String {
+                        return super.getFormattedValue(value)
+                    }
+                }
             }
             axisLeft.let {
                 it.setDrawGridLines(false)

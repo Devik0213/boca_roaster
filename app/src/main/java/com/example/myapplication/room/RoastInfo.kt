@@ -22,8 +22,11 @@ interface RoastInfoDao {
 @Entity(tableName = "roast_info")
 data class RoastInfo(
     @PrimaryKey val timeId: Long,
+    @ColumnInfo(name = "process_time") val processTime: Long,
     @ColumnInfo(name = "bean_name") val beanName: String,
-    @ColumnInfo(name = "bean_weight") val beanWeight: String,
-    @ColumnInfo(name = "roasted_weight") val roastedWeight: String,
-    @ColumnInfo(name = "history_json_string") val jsonString: String
+    @ColumnInfo(name = "bean_weight") val beanWeight: Int,
+    @ColumnInfo(name = "roasting_weight") val roastedWeight: Int,
+    @ColumnInfo(name = "history_json_string") val jsonString: String,
+    @ColumnInfo(name = "memo") val memo: String?,
+    @ColumnInfo(name = "images") val imageListJsonString: String?,
 )

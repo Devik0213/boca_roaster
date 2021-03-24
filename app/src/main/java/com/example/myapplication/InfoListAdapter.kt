@@ -7,11 +7,11 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
-import com.example.myapplication.databinding.RoatingInfoBinding
-import com.example.myapplication.databinding.RoatingInfoEditableBinding
+import com.example.myapplication.databinding.RoastingInfoBinding
+import com.example.myapplication.databinding.RoastingInfoEditableBinding
 import java.text.SimpleDateFormat
 
-class InfoListAdapter(context: Context, dateFormat: SimpleDateFormat) :
+class InfoListAdapter(context: Context) :
     RecyclerView.Adapter<ViewHolder>() {
     companion object {
         const val EDITABLE = 1000
@@ -23,9 +23,9 @@ class InfoListAdapter(context: Context, dateFormat: SimpleDateFormat) :
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(RoatingInfoEditableBinding.inflate(inflater, parent, false).takeIf {
+        return ViewHolder(RoastingInfoEditableBinding.inflate(inflater, parent, false).takeIf {
             viewType == EDITABLE
-        } ?: RoatingInfoBinding.inflate(inflater, parent, false))
+        } ?: RoastingInfoBinding.inflate(inflater, parent, false))
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -37,10 +37,10 @@ class InfoListAdapter(context: Context, dateFormat: SimpleDateFormat) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val info = list[position]
         holder.binding.apply {
-            if (this is RoatingInfoBinding) {
+            if (this is RoastingInfoBinding) {
                 label.text = info.label
                 value.text = info.value
-            } else if (this is RoatingInfoEditableBinding) {
+            } else if (this is RoastingInfoEditableBinding) {
                 label.text = info.label
                 label.text = info.value
                 value.inputType = InputType.TYPE_CLASS_TEXT.takeIf {
