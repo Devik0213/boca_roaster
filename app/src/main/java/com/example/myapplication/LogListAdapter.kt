@@ -5,9 +5,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.PointItemBinding
+import com.example.myapplication.model.Event
 import com.example.myapplication.model.Point
 
-class ListAdapter(context: Context) : RecyclerView.Adapter<ListAdapter.VH>() {
+class LogListAdapter(context: Context) : RecyclerView.Adapter<LogListAdapter.VH>() {
     private val inflater: LayoutInflater = LayoutInflater.from(context)
     val list = arrayListOf<Point>()
 
@@ -19,8 +20,7 @@ class ListAdapter(context: Context) : RecyclerView.Adapter<ListAdapter.VH>() {
     override fun onBindViewHolder(holder: VH, position: Int) {
         val point = list[position]
         holder.binding.point = point
-        holder.binding.root.isActivated = point.index != -1
-
+        holder.binding.root.isActivated = point.event != Event.NONE
     }
 
     override fun getItemCount(): Int {

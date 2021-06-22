@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -29,6 +30,9 @@ class MainActivity : AppCompatActivity() {
         historyAdapter = HistoryAdapter(layoutInflater) {
             ToastHelper.showSingleToast(this, "${it.timeId}", Toast.LENGTH_SHORT)
         }
+        binding.roasting.setOnClickListener {
+            startActivity(Intent(this, RoastingActivity::class.java))
+        }
         binding.recyclerView.adapter = historyAdapter
 
         lifecycleScope.launchWhenResumed {
@@ -37,6 +41,4 @@ class MainActivity : AppCompatActivity() {
             })
         }
     }
-
-
 }

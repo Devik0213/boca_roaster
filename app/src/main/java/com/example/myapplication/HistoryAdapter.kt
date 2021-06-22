@@ -19,11 +19,20 @@ class HistoryAdapter(private val layoutInflater: LayoutInflater, val click: (Roa
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = HistoryItemBinding.inflate(layoutInflater, parent, false)
-        return ViewHolder(binding)
+        return ViewHolder(binding) {
+
+        }
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val history = list[position]
+        when (holder.binding) {
+            is HistoryItemBinding -> {
+
+            }
+            else -> {
+            }
+        }
         holder.binding.apply {
             this as HistoryItemBinding
             root.setOnClickListener {

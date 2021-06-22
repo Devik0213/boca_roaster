@@ -39,7 +39,7 @@ class DetailActivity : AppCompatActivity() {
     private var startTimeId: Long = 0L
     private var pendingPoint: Point? = null
 
-    private lateinit var adapter: ListAdapter
+    private lateinit var adapter: LogListAdapter
     private lateinit var binding: ActivityRoastingBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -134,30 +134,30 @@ class DetailActivity : AppCompatActivity() {
     }
 
     private fun pendingPoint(level: Int?, temper: Int?, event: Event?) {
-        if (pendingPoint == null) {
-            Log.d("init point", " $level, $temper, $event")
-            pendingPoint = Point(
-                0,
-                temper ?: binding.temperatureLevel.value,
-                level ?: binding.temperatureDegree.value,
-                startTimeId,
-                0,
-                Event.INPUT
-            )
-        }
-        level?.let {
-            pendingPoint =
-                pendingPoint?.copy(level = it, time = startTimeId, processTime = progressTime)
-        }
-        temper?.let {
-            pendingPoint = pendingPoint?.copy(temperature = it, time = startTimeId)
-        }
-        event?.let {
-            pendingPoint = pendingPoint?.copy(event = it, time = startTimeId)
-        }
-        pendingPoint?.let {
-            addList(it)
-        }
+//        if (pendingPoint == null) {
+//            Log.d("init point", " $level, $temper, $event")
+//            pendingPoint = Point(
+//                0,
+//                temper ?: binding.temperatureLevel.value,
+//                level ?: binding.temperature.value,
+//                startTimeId,
+//                0,
+//                Event.INPUT
+//            )
+//        }
+//        level?.let {
+//            pendingPoint =
+//                pendingPoint?.copy(level = it, time = startTimeId, processTime = progressTime)
+//        }
+//        temper?.let {
+//            pendingPoint = pendingPoint?.copy(temperature = it, time = startTimeId)
+//        }
+//        event?.let {
+//            pendingPoint = pendingPoint?.copy(event = it, time = startTimeId)
+//        }
+//        pendingPoint?.let {
+//            addList(it)
+//        }
     }
 
     private fun addList(it: Point) {
@@ -170,7 +170,7 @@ class DetailActivity : AppCompatActivity() {
             return
         }
         pendingPoint?.let {
-            val recordPoint = it.copy(index = index, processTime = progressTime)
+            val recordPoint = it.copy( processTime = progressTime)
             addList(recordPoint)
             renderChart(recordPoint)
             index++
@@ -212,14 +212,14 @@ class DetailActivity : AppCompatActivity() {
     private fun renderChart(pendingPoint: Point) {
         binding.chart.apply {
             if (data.dataSetCount == 0) {
-                val temperatureList = adapter.list.filter { it.index != -1 }
+                val temperatureList = adapter.list.filter { it.isGraph() }
                     .mapIndexed { index, point ->
                         Entry(
                             index.toFloat(),
                             point.temperature.toFloat()
                         )
                     }
-                val levelList = adapter.list.filter { it.index != -1 }
+                val levelList = adapter.list.filter { it.isGraph() }
                     .mapIndexed { index, point ->
                         BarEntry(
                             index.toFloat(),

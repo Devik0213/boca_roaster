@@ -1,46 +1,32 @@
 package com.example.myapplication
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.ActivityRoastingBinding
 import com.example.myapplication.helper.Formatter
-import com.example.myapplication.model.Event
 import com.example.myapplication.model.Point
-import com.example.myapplication.room.DB
-import com.example.myapplication.room.RoastInfo
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis.AxisDependency
 import com.github.mikephil.charting.data.*
-import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.Timer
-import kotlin.concurrent.timer
 
 class RoastingActivity : AppCompatActivity() {
 
     companion object {
         const val INDEX_TEMP = 0
         const val INDEX_LEVEL = 1
-        const val MILLISECOND = 1000L
-        const val WIRTE_TERM = 60
+
     }
 
-    private lateinit var infoAdapter: InfoListAdapter
-    private lateinit var timeJob: Timer
-    private var progressTime: Long = 0L
-    private var startTimeId: Long = 0L
-    private var pendingPoint: Point? = null
-
-    private lateinit var adapter: ListAdapter
+    private lateinit var tempAdapter: LogListAdapter
     private lateinit var binding: ActivityRoastingBinding
+    private val viewModel: LogViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,94 +34,72 @@ class RoastingActivity : AppCompatActivity() {
         binding = ActivityRoastingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        initInfo(binding.infoList)
         intChart(binding.chart)
         initClicks()
 
-        binding.save.setOnClickListener {
-            saveData()
+        tempAdapter = LogListAdapter(this)
+        binding.recyclerView.adapter = tempAdapter
+
+        viewModel.isActivated.observe(this) {
+            binding.control.isActivated = it
+            binding.control.isEnabled = it
         }
-
-        binding.temperatureDegree.setOnValueChanged { picker, oldVal, newVal ->
-            Log.d("onChanged", "temper : $newVal")
-            pendingPoint(null, newVal, Event.NONE)
-        }
-        binding.temperatureLevel.setOnValueChanged { picker, oldVal, newVal ->
-            Log.d("onChanged", "level : $newVal")
-            pendingPoint(newVal, null, Event.NONE)
-        }
-        adapter = ListAdapter(this)
-        binding.recyclerView.adapter = adapter
-
-    }
-
-    private fun saveData() {
-        lifecycleScope.launch {
-            val beanName = infoAdapter.list[2].value
-            var weight = 0
-            var roastWeight = 0
-            try {
-                weight = Integer.parseInt(infoAdapter.list[1].value)
-                roastWeight = Integer.parseInt(infoAdapter.list[3].value)
-            } catch (e: Exception) {
-                Log.e("error", "error", e)
-            }
-
-            val history = Gson().toJson(adapter.list)
-            val list = Gson().fromJson(history, Array<Point>::class.java)
-            val record = RoastInfo(
-                startTimeId,
-                progressTime,
-                beanName,
-                weight,
-                roastWeight,
-                history,
-                null,
-                null
-            )
-            withContext(Dispatchers.IO) {
-                DB.instance.roastInfoDao().insert(record)
+        viewModel.millTimes.observe(this) { time ->
+            Formatter.processTime(time).let {
+                binding.timer.text = it
             }
         }
-    }
+        viewModel.historyList.observe(this) {
 
-    private fun initInfo(infoList: RecyclerView) {
-        infoAdapter = InfoListAdapter(this)
-        infoList.adapter = infoAdapter
-        updateInfo(0, Formatter.shortDateFormat.format(System.currentTimeMillis()))
-    }
-
-    private fun updateInfo(index: Int, value: String) {
-        infoAdapter.list[index].value = value
+        }
+        viewModel.currentPoint.observe(this) {
+            tempAdapter.add(it)
+            if (it.isGraph()) {
+                renderChart(it)
+            }
+        }
     }
 
     private fun initClicks() {
         with(binding) {
+            close.setOnClickListener {
+                startActivity(Intent(this@RoastingActivity, MainActivity::class.java))
+            }
+            save.setOnClickListener {
+                viewModel.saveData("asd",222, 333)
+            }
+            temperature.setOnValueChanged { picker, oldVal, newVal ->
+                Log.d("onChanged", "temper : $newVal")
+                viewModel.updateCurrentPoint(temper = newVal)
+            }
+            temperatureLevel.displayedValues = LevelLabel.values.toTypedArray()
+            temperatureLevel.setOnValueChanged { picker, oldVal, newVal ->
+                Log.d("onChanged", "level : $newVal")
+                viewModel.updateCurrentPoint(level = newVal)
+            }
             control.setOnClickListener {
                 if (it.isActivated) {
-                    it.isActivated = false
-                    stopTimer()
+                    viewModel.stopTimer()
                 } else {
-                    it.isActivated = true
-                    startTimer()
+                    viewModel.startTimer()
                 }
             }
             levelPlus.setOnClickListener {
                 temperatureLevel.value--
-                pendingPoint(temperatureLevel.value, null, Event.NONE)
+                viewModel.updateCurrentPoint(level = temperatureLevel.value)
             }
             levelMinus.setOnClickListener {
                 temperatureLevel.value++
-                pendingPoint(temperatureLevel.value, null, Event.NONE)
+                viewModel.updateCurrentPoint(level = temperatureLevel.value)
             }
             temperaturePlus.setOnClickListener {
-                temperatureDegree.value += 10
-                pendingPoint(null, temperatureDegree.value, Event.NONE)
+                temperature.value += 10
+                viewModel.updateCurrentPoint(temper = temperature.value)
 
             }
             temperatureMinus.setOnClickListener {
-                temperatureDegree.value -= 10
-                pendingPoint(null, temperatureDegree.value, Event.NONE)
+                temperature.value -= 10
+                viewModel.updateCurrentPoint(temper = temperature.value)
             }
         }
     }
@@ -174,93 +138,17 @@ class RoastingActivity : AppCompatActivity() {
         }
     }
 
-    private fun pendingPoint(level: Int?, temper: Int?, event: Event?) {
-        if (pendingPoint == null) {
-            Log.d("init point", " $level, $temper, $event")
-            pendingPoint = Point(
-                0,
-                temper ?: binding.temperatureLevel.value,
-                level ?: binding.temperatureDegree.value,
-                startTimeId,
-                0,
-                Event.INPUT
-            )
-        }
-        level?.let {
-            pendingPoint =
-                pendingPoint?.copy(level = it, time = startTimeId, processTime = progressTime)
-        }
-        temper?.let {
-            pendingPoint = pendingPoint?.copy(temperature = it, time = startTimeId)
-        }
-        event?.let {
-            pendingPoint = pendingPoint?.copy(event = it, time = startTimeId)
-        }
-        pendingPoint?.let {
-            addList(it)
-        }
-    }
-
-    private fun addList(it: Point) {
-        adapter.add(it)
-    }
-
-    var index = 0
-    private fun writePoint() {
-        if (binding.control.isActivated.not()) {
-            return
-        }
-        pendingPoint?.let {
-            val recordPoint = it.copy(index = index, processTime = progressTime)
-            addList(recordPoint)
-            renderChart(recordPoint)
-            index++
-            if (index == 20) {
-                stopTimer()
-            }
-        }
-    }
-
-    private fun startTimer() {
-        startTimeId = 0L
-        progressTime = 0L
-        binding.control.isActivated = true
-        timeJob = timer("timer", false, 0, MILLISECOND) {
-            if (startTimeId == 0L) {
-                startTimeId = scheduledExecutionTime()
-            }
-            progressTime = (scheduledExecutionTime() - startTimeId) / MILLISECOND
-            if (progressTime < 1L) {
-                runOnUiThread {
-                    pendingPoint(null, null, event = Event.INPUT)
-                }
-            }
-            binding.timer.text = Formatter.processTime(progressTime)
-            if (progressTime % WIRTE_TERM == 0L) {
-                runOnUiThread {
-                    writePoint()
-                }
-            }
-        }
-    }
-
-    private fun stopTimer() {
-        binding.control.isActivated = false
-        binding.control.isEnabled = false
-        timeJob.cancel()
-    }
-
     private fun renderChart(pendingPoint: Point) {
         binding.chart.apply {
             if (data.dataSetCount == 0) {
-                val temperatureList = adapter.list.filter { it.index != -1 }
+                val temperatureList = tempAdapter.list.filter { it.processTime == 0L }
                     .mapIndexed { index, point ->
                         Entry(
                             index.toFloat(),
                             point.temperature.toFloat()
                         )
                     }
-                val levelList = adapter.list.filter { it.index != -1 }
+                val levelList = tempAdapter.list.filter { it.processTime == 0L }
                     .mapIndexed { index, point ->
                         BarEntry(
                             index.toFloat(),
