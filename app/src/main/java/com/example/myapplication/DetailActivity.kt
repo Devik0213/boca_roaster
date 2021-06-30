@@ -33,7 +33,6 @@ class DetailActivity : AppCompatActivity() {
         const val TERM = 1
     }
 
-    private lateinit var infoAdapter: InfoListAdapter
     private lateinit var timeJob: Timer
     private var progressTime: Long = 0L
     private var startTimeId: Long = 0L
@@ -50,42 +49,6 @@ class DetailActivity : AppCompatActivity() {
 
         intChart(binding.chart)
         initClicks()
-
-        binding.save.setOnClickListener {
-            saveData()
-        }
-
-    }
-
-    private fun saveData() {
-        lifecycleScope.launch {
-            val beanName = infoAdapter.list[2].value
-            var weight = 0
-            var roastWeight = 0
-            try {
-                weight = Integer.parseInt(infoAdapter.list[1].value)
-                roastWeight = Integer.parseInt(infoAdapter.list[3].value)
-            } catch (e: Exception) {
-                Log.e("error", "error", e)
-            }
-
-            val history = Gson().toJson(adapter.list)
-            val list = Gson().fromJson(history, Array<Point>::class.java)
-            Log.d("aa", "list $list")
-            val record = RoastInfo(
-                startTimeId,
-                progressTime,
-                beanName,
-                weight,
-                roastWeight,
-                history,
-                null,
-                null
-            )
-            withContext(Dispatchers.IO) {
-                DB.instance.roastInfoDao().insert(record)
-            }
-        }
     }
 
     private fun initClicks() {
@@ -170,7 +133,7 @@ class DetailActivity : AppCompatActivity() {
             return
         }
         pendingPoint?.let {
-            val recordPoint = it.copy( processTime = progressTime)
+            val recordPoint = it.copy(processTime = progressTime)
             addList(recordPoint)
             renderChart(recordPoint)
             index++

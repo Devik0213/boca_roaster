@@ -29,7 +29,11 @@ class LogViewModel : ViewModel() {
 
     private var lastPoint: Point = Point(0, 0, 0, 0, Event.NONE)
 
-    fun startTimer(beanName : String, weight : Int, roastWeight : Int) {
+    private var _beanName: String = ""
+    private var _greenBeenWeight: Int = 0
+    private var _beanWeight: Int = 0
+
+    fun startLooper() {
 
         startTimeId = 0L
         isActivated.value = true
@@ -43,6 +47,7 @@ class LogViewModel : ViewModel() {
             if (isActivated.value?.not() == true) {
                 return@timer
             }
+            Log.d("Log", "$progressTime, lastPoint $lastPoint")
             millTimes.postValue(progressTime)
             historyList.value?.add(lastPoint)
             historyList.postValue(historyList.value)
@@ -57,7 +62,6 @@ class LogViewModel : ViewModel() {
 
     fun updateCurrentPoint(level: Int? = null, temper: Int? = null, event: Event? = null) {
         if (lastPoint.startTimeId == 0L) {
-            Log.d("init point", " $level, $temper, $event")
             lastPoint = Point(
                 startTimeId, 0, level ?: 0, temper ?: 0, Event.INPUT
             )
@@ -72,6 +76,8 @@ class LogViewModel : ViewModel() {
         event?.let {
             lastPoint = lastPoint.copy(event = it)
         }
+
+        Log.d("updated point", "L:$level , T:$temper, E:$event, = $lastPoint")
     }
 
 

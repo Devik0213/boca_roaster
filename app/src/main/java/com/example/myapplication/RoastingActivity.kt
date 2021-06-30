@@ -1,12 +1,15 @@
 package com.example.myapplication
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.ActivityRoastingBinding
 import com.example.myapplication.helper.Formatter
 import com.example.myapplication.model.Point
@@ -24,6 +27,7 @@ class RoastingActivity : AppCompatActivity() {
 
     }
 
+    private var vibrator: Vibrator? = null
     private lateinit var tempAdapter: LogListAdapter
     private lateinit var binding: ActivityRoastingBinding
     private val viewModel: LogViewModel by viewModels()
@@ -34,6 +38,11 @@ class RoastingActivity : AppCompatActivity() {
         binding = ActivityRoastingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        (getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).apply {
+            if (hasVibrator()) {
+                vibrator = this
+            }
+        }
         intChart(binding.chart)
         initClicks()
 
@@ -66,14 +75,18 @@ class RoastingActivity : AppCompatActivity() {
                 startActivity(Intent(this@RoastingActivity, MainActivity::class.java))
             }
             save.setOnClickListener {
-                viewModel.saveData("asd",222, 333)
+                viewModel.saveData("asd", 222, 333)
             }
-            temperature.setOnValueChanged { picker, oldVal, newVal ->
+            temperature.setOnValueChanged(
+                { pickHaptic() },
+                { slidingHaptic() }) { picker, oldVal, newVal ->
                 Log.d("onChanged", "temper : $newVal")
                 viewModel.updateCurrentPoint(temper = newVal)
             }
-            temperatureLevel.displayedValues = LevelLabel.values.toTypedArray()
-            temperatureLevel.setOnValueChanged { picker, oldVal, newVal ->
+            level.displayedValues = LevelLabel.values.toTypedArray()
+            level.setOnValueChanged(
+                { pickHaptic() },
+                { slidingHaptic() }) { picker, oldVal, newVal ->
                 Log.d("onChanged", "level : $newVal")
                 viewModel.updateCurrentPoint(level = newVal)
             }
@@ -81,16 +94,24 @@ class RoastingActivity : AppCompatActivity() {
                 if (it.isActivated) {
                     viewModel.stopTimer()
                 } else {
-                    viewModel.startTimer()
+                    val beanName = beanName.getString()
+                    val greenBeanWeightValue = greanBeanWeight.getString()?.safeIntOrZero()
+
+                    when {
+                        beanName.isNullOrEmpty() -> "콩 이름을 기록해주세요."
+                        greenBeanWeightValue == 0 -> "생두 무게를 입력해주세요"
+                    }
+                    viewModel.startLooper()
                 }
             }
             levelPlus.setOnClickListener {
-                temperatureLevel.value--
-                viewModel.updateCurrentPoint(level = temperatureLevel.value)
+                level.value--
+                pickHaptic()
+                viewModel.updateCurrentPoint(level = level.value)
             }
             levelMinus.setOnClickListener {
-                temperatureLevel.value++
-                viewModel.updateCurrentPoint(level = temperatureLevel.value)
+                level.value++
+                viewModel.updateCurrentPoint(level = level.value)
             }
             temperaturePlus.setOnClickListener {
                 temperature.value += 10
@@ -102,6 +123,22 @@ class RoastingActivity : AppCompatActivity() {
                 viewModel.updateCurrentPoint(temper = temperature.value)
             }
         }
+    }
+
+    private fun vibe(milliseconds: Long, amp: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator?.vibrate(VibrationEffect.createOneShot(milliseconds, amp))
+        } else {
+            vibrator?.vibrate(milliseconds)
+        }
+    }
+
+    private fun slidingHaptic() {
+        vibe(1, 50)
+    }
+
+    private fun pickHaptic() {
+        vibe(10, 100)
     }
 
     private fun intChart(chart: CombinedChart) {

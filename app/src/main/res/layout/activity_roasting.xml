@@ -179,7 +179,7 @@
             android:layout_height="wrap_content"
             android:text="화력레벨"
             android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@id/temperature_level"
+            app:layout_constraintBottom_toTopOf="@id/level"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintLeft_toRightOf="@id/level_minus"
             app:layout_constraintRight_toLeftOf="@id/level_plus" />
@@ -211,7 +211,7 @@
             app:layout_constraintRight_toRightOf="parent" />
 
         <com.shawnlin.numberpicker.NumberPicker
-            android:id="@+id/temperature_level"
+            android:id="@+id/level"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:background="#666"
