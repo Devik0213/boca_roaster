@@ -8,8 +8,10 @@ import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.databinding.ActivityRoastingBinding
 import com.example.myapplication.helper.Formatter
 import com.example.myapplication.model.Point
@@ -18,6 +20,9 @@ import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis.AxisDependency
 import com.github.mikephil.charting.data.*
+import kotlinx.coroutines.*
+import kotlin.system.measureNanoTime
+import kotlin.system.measureTimeMillis
 
 class RoastingActivity : AppCompatActivity() {
 
@@ -122,6 +127,38 @@ class RoastingActivity : AppCompatActivity() {
                 temperature.value -= 10
                 viewModel.updateCurrentPoint(temper = temperature.value)
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch {
+            val time = measureTimeMillis {
+
+//                val result = withContext(Dispatchers.IO) {
+                    listOf(
+                        async(Dispatchers.IO) {
+                            Log.d("aa", "a-1")
+                            delay(1000)
+                            Log.d("aa", "a-2")
+                        },
+//                        async {
+                        async(Dispatchers.IO) {
+                            Log.d("aa", "b-1")
+                            delay(1000)
+                            Log.d("aa", "b-2")
+                        },
+//                        async {
+                        async(Dispatchers.IO) {
+                            Log.d("aa", "c-1")
+                            delay(1000)
+                            Log.d("aa", "c-2")
+                        }).awaitAll()
+//                    true
+//                }
+                Toast.makeText(this@RoastingActivity, "done ", Toast.LENGTH_SHORT).show()
+            }
+            Log.d("aa", "time $time ms")
         }
     }
 
