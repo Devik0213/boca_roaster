@@ -7,9 +7,7 @@ import com.example.myapplication.model.Point
 import com.example.myapplication.room.DB
 import com.example.myapplication.room.RoastInfo
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.util.Timer
 import kotlin.concurrent.timer
 
@@ -25,7 +23,7 @@ class LogViewModel : ViewModel() {
 
     val historyList = MutableLiveData<ArrayList<Point>>() // 전체 변경사항
 
-    val currentPoint = MutableLiveData<Point>()
+    val currentPendingPoint = MutableLiveData<Point>()
 
     private var lastPoint: Point = Point(0, 0, 0, 0, Event.NONE)
 
@@ -38,7 +36,7 @@ class LogViewModel : ViewModel() {
         startTimeId = 0L
         isActivated.value = true
 
-        timeJob = timer("timer", false, 0, 10*PER_SECOND) {
+        timeJob = timer("timer", false, 0, 1 * PER_SECOND) {
             if (startTimeId == 0L) {
                 startTimeId = scheduledExecutionTime()
             }
@@ -49,9 +47,13 @@ class LogViewModel : ViewModel() {
             }
             Log.d("Log", "$progressTime, lastPoint $lastPoint")
             millTimes.postValue(progressTime)
-            historyList.value?.add(lastPoint)
-            historyList.postValue(historyList.value)
-            currentPoint.postValue(lastPoint)
+            historyList.run {
+                if (lastPoint.isGraph()) {
+                    value?.add(lastPoint)
+                    postValue(value)
+                }
+            }
+            currentPendingPoint.postValue(lastPoint)
         }
     }
 
@@ -73,16 +75,19 @@ class LogViewModel : ViewModel() {
         temper?.let {
             lastPoint = lastPoint.copy(temperature = it)
         }
-        event?.let {
-            lastPoint = lastPoint.copy(event = it)
-        }
 
+        lastPoint = lastPoint.copy(event = event ?: Event.NONE)
+
+        currentPendingPoint.value = lastPoint
         Log.d("updated point", "L:$level , T:$temper, E:$event, = $lastPoint")
     }
 
 
-    fun saveData(beanName : String, weight : Int, roastWeight : Int) {
-        viewModelScope.launch {
+    fun saveData(beanName: String, weight: Int, roastWeight: Int) {
+        val a= viewModelScope.launch {
+            async(Dispatchers.IO) {
+
+            }
             val history = Gson().toJson(historyList)
             val list = Gson().fromJson(history, Array<Point>::class.java)
             val record = RoastInfo(
@@ -98,6 +103,33 @@ class LogViewModel : ViewModel() {
             withContext(Dispatchers.IO) {
                 DB.instance.roastInfoDao().insert(record)
             }
+        }
+        val b = viewModelScope.launch {
+            var result0 = -1
+            async {
+                for (i in 0..10){
+                    delay(1000)
+                }
+                result0 = 0
+            }
+            result0 + 100 // 99
+
+            val result = async(Dispatchers.IO){
+                for (i in 0..10){
+                    delay(1000)
+                }
+                0
+            }
+            result.await() + 100 // 100
+
+
+            val result2 = withContext(Dispatchers.IO){
+                for (i in 0..10){
+                    delay(1000)
+                }
+                0
+            }
+            result2 + 100 // 100
         }
     }
 
