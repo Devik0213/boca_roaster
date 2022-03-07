@@ -54,6 +54,7 @@ class LogViewModel : ViewModel() {
                 }
             }
             historyList
+            historyList
             currentPendingPoint.postValue(lastPoint)
         }
     }
