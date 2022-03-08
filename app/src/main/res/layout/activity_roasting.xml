@@ -73,9 +73,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="이름"
+            app:layout_constraintBottom_toBottomOf="@id/bean_name"
             app:layout_constraintLeft_toRightOf="@id/center"
-            app:layout_constraintTop_toTopOf="@id/bean_name"
-            app:layout_constraintBottom_toBottomOf="@id/bean_name"/>
+            app:layout_constraintTop_toTopOf="@id/bean_name" />
 
         <EditText
             android:id="@+id/bean_name"
@@ -91,9 +91,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/label_green_bean_weight"
+            app:layout_constraintBottom_toBottomOf="@id/grean_bean_weight"
             app:layout_constraintLeft_toRightOf="@id/center"
-            app:layout_constraintTop_toTopOf="@id/grean_bean_weight"
-            app:layout_constraintBottom_toBottomOf="@id/grean_bean_weight"/>
+            app:layout_constraintTop_toTopOf="@id/grean_bean_weight" />
 
         <EditText
             android:id="@+id/grean_bean_weight"
@@ -109,9 +109,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/label_green_bean_weight"
+            app:layout_constraintBottom_toBottomOf="@id/bean_weight"
             app:layout_constraintLeft_toRightOf="@id/center"
-            app:layout_constraintTop_toTopOf="@id/bean_weight"
-            app:layout_constraintBottom_toBottomOf="@id/bean_weight"/>
+            app:layout_constraintTop_toTopOf="@id/bean_weight" />
 
         <EditText
             android:id="@+id/bean_weight"
@@ -126,17 +126,33 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:alpha=".8"
-            android:background="#030303"
+            android:background="#66030303"
             android:gravity="center"
-            android:padding="2dp"
+            android:paddingHorizontal="10dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
             android:text="00:00"
             android:textColor="#FFFF00"
             android:textSize="24dp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@id/chart"
-            app:layout_constraintDimensionRatio="w, 3:1"
             app:layout_constraintLeft_toLeftOf="@id/chart" />
 
+        <TextView
+            android:id="@+id/pending_point"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:alpha=".8"
+            android:background="#66030303"
+            android:gravity="center"
+            android:padding="5dp"
+            android:textColor="#FFFF00"
+            android:textSize="16dp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="@id/timer"
+            app:layout_constraintBottom_toBottomOf="@id/chart"
+            app:layout_constraintLeft_toRightOf="@id/timer"
+            app:layout_constraintRight_toLeftOf="@id/center" />
 
         <Button
             android:id="@+id/control"

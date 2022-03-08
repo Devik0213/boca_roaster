@@ -8,12 +8,12 @@ import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.databinding.ActivityRoastingBinding
 import com.example.myapplication.helper.Formatter
+import com.example.myapplication.model.Event
 import com.example.myapplication.model.Point
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.Legend
@@ -21,8 +21,6 @@ import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis.AxisDependency
 import com.github.mikephil.charting.data.*
 import kotlinx.coroutines.*
-import kotlin.system.measureNanoTime
-import kotlin.system.measureTimeMillis
 
 class RoastingActivity : AppCompatActivity() {
 
@@ -43,6 +41,7 @@ class RoastingActivity : AppCompatActivity() {
         binding = ActivityRoastingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        action()
         (getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).apply {
             if (hasVibrator()) {
                 vibrator = this
@@ -66,12 +65,26 @@ class RoastingActivity : AppCompatActivity() {
         viewModel.historyList.observe(this) {
 
         }
-        viewModel.currentPoint.observe(this) {
+
+        lifecycleScope.launch {
+            Log.d("dd", "ddd")
+        }
+        viewModel.currentPendingPoint.observe(this) {
             tempAdapter.add(it)
             if (it.isGraph()) {
                 renderChart(it)
             }
+            renderPoint(it)
         }
+    }
+
+    private fun renderPoint(it: Point?) {
+        it ?: return
+        var text = "${it.temperature}℃ (${it.level}Lv)"
+        if (it.event != Event.NONE) {
+            text += ": ${it.event.name}"
+        }
+        binding.pendingPoint.text = text
     }
 
     private fun initClicks() {
@@ -127,38 +140,6 @@ class RoastingActivity : AppCompatActivity() {
                 temperature.value -= 10
                 viewModel.updateCurrentPoint(temper = temperature.value)
             }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        lifecycleScope.launch {
-            val time = measureTimeMillis {
-
-//                val result = withContext(Dispatchers.IO) {
-                    listOf(
-                        async(Dispatchers.IO) {
-                            Log.d("aa", "a-1")
-                            delay(1000)
-                            Log.d("aa", "a-2")
-                        },
-//                        async {
-                        async(Dispatchers.IO) {
-                            Log.d("aa", "b-1")
-                            delay(1000)
-                            Log.d("aa", "b-2")
-                        },
-//                        async {
-                        async(Dispatchers.IO) {
-                            Log.d("aa", "c-1")
-                            delay(1000)
-                            Log.d("aa", "c-2")
-                        }).awaitAll()
-//                    true
-//                }
-                Toast.makeText(this@RoastingActivity, "done ", Toast.LENGTH_SHORT).show()
-            }
-            Log.d("aa", "time $time ms")
         }
     }
 
@@ -233,8 +214,7 @@ class RoastingActivity : AppCompatActivity() {
                     set.setColor(Color.rgb(255, 0, 0))
                     set.setLineWidth(2.5f)
                     set.setCircleColor(Color.rgb(240, 238, 70))
-                    set.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
-                    set.cubicIntensity = .5f
+                    set.mode = LineDataSet.Mode.LINEAR
                     set.valueTextSize = 15f
                     set.setValueTextSize(10f)
                     set.setValueTextColor(Color.rgb(255, 0, 0))
