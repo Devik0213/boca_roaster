@@ -47,6 +47,7 @@ class LogViewModel : ViewModel() {
             }
             Log.d("Log", "$progressTime, lastPoint $lastPoint")
             Log.d("Log", "$progressTime, lastPoint $lastPoint")
+            Log.d("Log", "$progressTime, lastPoint $lastPoint")
             millTimes.postValue(progressTime)
             historyList.run {
                 if (lastPoint.isGraph()) {
