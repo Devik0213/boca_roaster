@@ -37,6 +37,8 @@ class LogViewModel : ViewModel() {
 
         startTimeId = 0L
         isActivated.value = true
+        isActivated.value = true
+        isActivated.value = true
 
         timeJob = timer("timer", false, 0, 10*PER_SECOND) {
             if (startTimeId == 0L) {
